@@ -1,16 +1,19 @@
 import L from 'leaflet';
 import * as panes from './panes';
 import * as utils from './utils';
-import HighlightablePolyline from './polyline';
+import * as layers from './layers';
 
 export * from './panes';
 export * from './utils';
-export { HighlightablePolyline };
+export * from './layers';
+
+const { Layers, ...layerUtils } = layers;
 
 const HighlightableLayers = {
     ...panes,
     ...utils,
-    Polyline: HighlightablePolyline
+    ...Layers,
+    ...layerUtils
 };
 
 export default HighlightableLayers;
