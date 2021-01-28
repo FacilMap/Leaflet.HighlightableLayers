@@ -1,0 +1,19 @@
+/* .leaflet-lhl-marker-hightlight-pane {
+	z-index: 621;
+}*/
+
+.leaflet-lhl-raised-pane {
+	z-index: 620;
+}
+
+.leaflet-lhl-raised-shadow-pane {
+	z-index: 619;
+}
+
+.leaflet-lhl-shadow-pane {
+	z-index: 399;
+}
+
+.leaflet-lhl-almost-over-pane {
+	z-index: 201;
+}

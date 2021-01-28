@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>L.HighlightableLayers Example</title>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+		<style type="text/css">
+			html, body { width: 100%; height: 100%; margin: 0; }
+			#map { width: 100%; height: 100%; }
+		</style>
+	</head>
+
+	<body>
+		<div id="map"></div>
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script type="text/javascript" src="dist/L.HighlightableLayers.js"></script>
+
+		<script type="text/javascript">
+		    var map = L.map('map',{
+				center: [52.4830, 13.3414],
+				zoom: 9
+			});
+		    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				attribution: '© <a href="http://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
+				noWrap: true
+			}).addTo(map);
+
+			const layers = [
+				new L.HighlightableLayers.Polyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
+				new L.HighlightableLayers.Polyline([[51.96119, 11.79382], [53.16653, 14.04877]], { color: '#ffffff', weight: 3 }).addTo(map),
+				new L.Polygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map)
+			];
+
+			function setHighlightedLayer(layer) {
+				for (const l of layers) {
+					l.setStyle({ opacity: l === layer ? 0.8 : 0.35, raised: l === layer });
+				}
+			}
+
+			for (const layer of layers) {
+				layer.on('click', (e) => { setTimeout(() => {
+					setHighlightedLayer(layer);
+				}, 0); });
+			}
+
+			map.on('click', (e) => {
+				setHighlightedLayer(null);
+			});
+
+			setHighlightedLayer(null);
+		</script>
+	</body>
+</html>
