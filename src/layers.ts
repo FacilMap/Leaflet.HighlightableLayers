@@ -8,7 +8,7 @@ export type HighlightableLayerOptions<O extends PathOptions> = O & {
     outlineColor?: string;
     outlineWeight?: number;
     outlineFill?: boolean;
-    generateStyles(options: HighlightableLayerOptions<O>): Record<string, O>;
+    generateStyles?: (options: HighlightableLayerOptions<O>) => Record<string, O>;
 };
 
 export function createHighlightableLayerClass<
@@ -43,7 +43,7 @@ export function createHighlightableLayerClass<
             }
 
             this.layers = {} as any;
-            for (const layerName of Object.keys(this.realOptions.generateStyles(this.realOptions) ?? {})) {
+            for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions) ?? {})) {
                 if (layerName !== "main") {
                     this.layers[layerName] = new BaseClass(...args) as T;
                 }
@@ -106,18 +106,14 @@ export function createHighlightableLayerClass<
     return result;
 }
 
-export const Layers = {
+export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
 
-    Circle: createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']),
+export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
 
-    CircleMarker: createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']),
+export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
 
-    Polygon: createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(Polygon, ['setLatLngs']),
+export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
+    generateStyles: generatePolylineStyles
+});
 
-    Polyline: createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
-        generateStyles: generatePolylineStyles
-    }),
-
-    Rectangle: createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(Rectangle, ['setBounds'])
-
-};
+export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(Rectangle, ['setBounds']);

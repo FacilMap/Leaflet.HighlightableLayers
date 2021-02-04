@@ -7,13 +7,17 @@ export * from './panes';
 export * from './utils';
 export * from './layers';
 
-const { Layers, ...layerUtils } = layers;
+const { HighlightableCircle, HighlightableCircleMarker, HighlightablePolygon, HighlightablePolyline, HighlightableRectangle, ...layerUtils } = layers;
 
 const HighlightableLayers = {
     ...panes,
     ...utils,
-    ...Layers,
-    ...layerUtils
+    ...layerUtils,
+    Circle: HighlightableCircle,
+    CircleMarker: HighlightableCircleMarker,
+    Polygon: HighlightablePolygon,
+    Polyline: HighlightablePolyline,
+    Rectangle: HighlightableRectangle
 };
 
 export default HighlightableLayers;
