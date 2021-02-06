@@ -20,7 +20,8 @@ would be rendered underneath it (for the outline), along with a 20px wide transp
 
 ![](./screenshot.png)
 
-[Demo](https://facilmap.org/r8pFjVqUdNNP)
+[Demo](https://unpkg.com/leaflet-highlightable-layers/example.html)\
+[Demo on FacilMap](https://facilmap.org/r8pFjVqUdNNP)
 
 
 Usage

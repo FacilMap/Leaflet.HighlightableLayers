@@ -43,7 +43,8 @@ module.exports = (env: any, argv: any): Configuration => {
 			//new BundleAnalyzerPlugin()
 		],
 		devServer: {
-			publicPath: "/dist"
+			publicPath: "/dist",
+			disableHostCheck: true
 		}
 	};
 };
