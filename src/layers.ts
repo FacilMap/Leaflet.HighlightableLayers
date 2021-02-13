@@ -29,7 +29,7 @@ export function createHighlightableLayerClass<
     BaseClass: B,
     cloneMethods: Array<keyof T> = [],
     defaultOptions?: HighlightableLayerOptions<O>
-): new (...args: ConstructorParameters<B>) => HighlightableLayer<T, O> {
+): new (arg1: ConstructorParameters<B>[0], options?: HighlightableLayerOptions<O>) => HighlightableLayer<T, O> {
     const result = class HighlightableLayer extends BaseClass {
         options!: O;
         realOptions: HighlightableLayerOptions<O>;
