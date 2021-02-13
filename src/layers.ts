@@ -1,4 +1,4 @@
-import { Circle, CircleMarker, CircleMarkerOptions, LatLngExpression, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle } from "leaflet";
+import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle } from "leaflet";
 import { setLayerPane } from "./panes";
 import { generatePolygonStyles, generatePolylineStyles } from "./styles";
 import { clone } from "./utils";
@@ -11,23 +11,29 @@ export type HighlightableLayerOptions<O extends PathOptions> = O & {
     generateStyles?: (options: HighlightableLayerOptions<O>) => Record<string, O>;
 };
 
+export type HighlightableLayer<
+    B extends new (...args: any[]) => Path,
+    O extends PathOptions
+> = InstanceType<B> & {
+    options: O;
+    realOptions: O;
+    layers: Record<string, InstanceType<B>>;
+    generateStyles(options: O): Record<string, O>;
+    setStyle(style: Partial<HighlightableLayerOptions<O>>): HighlightableLayer<B, O>;
+};
+
 export function createHighlightableLayerClass<
     B extends new (...args: any[]) => Path,
-    T extends InstanceType<B> & { options: O },
     O extends PathOptions
 >(
     BaseClass: B,
-    cloneMethods: Array<keyof T> = [],
+    cloneMethods: Array<keyof InstanceType<B>> = [],
     defaultOptions?: HighlightableLayerOptions<O>
-): new (...args: ConstructorParameters<B>) => T & {
-    realOptions: O;
-    layers: Record<string, T>;
-    generateStyles(options: O): Record<string, O>;
-} {
+): new (...args: ConstructorParameters<B>) => HighlightableLayer<B, O> {
     const result = class HighlightableLayer extends BaseClass {
         options!: HighlightableLayerOptions<O>;
         realOptions: HighlightableLayerOptions<O>;
-        layers: Record<string, T>;
+        layers: Record<string, InstanceType<B>>;
 
         constructor(...args: any[]) {
             super(...args);
@@ -45,7 +51,7 @@ export function createHighlightableLayerClass<
             this.layers = {} as any;
             for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions) ?? {})) {
                 if (layerName !== "main") {
-                    this.layers[layerName] = new BaseClass(...args) as T;
+                    this.layers[layerName] = new BaseClass(...args) as InstanceType<B>;
                 }
             }
 
@@ -106,14 +112,14 @@ export function createHighlightableLayerClass<
     return result;
 }
 
-export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
+export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
 
-export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
+export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
 
-export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
+export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
 
-export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
+export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
     generateStyles: generatePolylineStyles
 });
 
-export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(Rectangle, ['setBounds']);
+export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, PolylineOptions>(Rectangle, ['setBounds']);
