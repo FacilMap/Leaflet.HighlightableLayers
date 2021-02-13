@@ -12,26 +12,26 @@ export type HighlightableLayerOptions<O extends PathOptions> = O & {
 };
 
 export type HighlightableLayer<
-    B extends new (...args: any[]) => Path,
+    T extends Path,
     O extends PathOptions
-> = InstanceType<B> & {
-    options: O;
-    realOptions: O;
-    layers: Record<string, InstanceType<B>>;
-    generateStyles(options: O): Record<string, O>;
-    setStyle(style: Partial<HighlightableLayerOptions<O>>): HighlightableLayer<B, O>;
+> = T & {
+    realOptions: HighlightableLayerOptions<O>;
+    layers: Record<string, T>;
+    generateStyles(options: HighlightableLayerOptions<O>): Record<string, O>;
+    setStyle(style: Partial<HighlightableLayerOptions<O>>): HighlightableLayer<T, O>;
 };
 
 export function createHighlightableLayerClass<
     B extends new (...args: any[]) => Path,
+    T extends InstanceType<B>,
     O extends PathOptions
 >(
     BaseClass: B,
-    cloneMethods: Array<keyof InstanceType<B>> = [],
+    cloneMethods: Array<keyof T> = [],
     defaultOptions?: HighlightableLayerOptions<O>
-): new (...args: ConstructorParameters<B>) => HighlightableLayer<B, O> {
+): new (...args: ConstructorParameters<B>) => HighlightableLayer<T, O> {
     const result = class HighlightableLayer extends BaseClass {
-        options!: HighlightableLayerOptions<O>;
+        options!: O;
         realOptions: HighlightableLayerOptions<O>;
         layers: Record<string, InstanceType<B>>;
 
@@ -112,14 +112,14 @@ export function createHighlightableLayerClass<
     return result;
 }
 
-export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
+export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
 
-export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
+export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
 
-export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
+export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
 
-export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
+export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
     generateStyles: generatePolylineStyles
 });
 
-export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, PolylineOptions>(Rectangle, ['setBounds']);
+export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(Rectangle, ['setBounds']);
