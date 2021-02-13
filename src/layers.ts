@@ -72,7 +72,7 @@ export function createHighlightableLayerClass<
             return this as any;
         }
     
-        setStyle(style: PathOptions) {
+        setStyle(style: Partial<HighlightableLayerOptions<O>>) {
             Object.assign(this.realOptions, style);
     
             const styles = this.realOptions.generateStyles?.(this.realOptions) ?? { main: { ...this.realOptions } };
