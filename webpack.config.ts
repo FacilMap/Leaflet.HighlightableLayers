@@ -9,7 +9,7 @@ module.exports = (env: any, argv: any): Configuration => {
 		output: {
 			filename: "L.HighlightableLayers.js",
 			path: __dirname + "/dist/",
-			library: "L.HighlightableLayers",
+			library: ["L", "HighlightableLayers"],
 			libraryTarget: "umd"
 		},
 		resolve: {
@@ -44,7 +44,8 @@ module.exports = (env: any, argv: any): Configuration => {
 		],
 		devServer: {
 			publicPath: "/dist",
-			disableHostCheck: true
+			disableHostCheck: true,
+			injectClient: false // https://github.com/webpack/webpack-dev-server/issues/2484
 		}
 	};
 };

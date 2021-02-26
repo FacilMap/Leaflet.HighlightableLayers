@@ -27,8 +27,11 @@ would be rendered underneath it (for the outline), along with a 20px wide transp
 Usage
 -----
 
+If you are using a module bundler, you can install Leaflet.HighlightableLayers using `npm install -S leaflet-highlightable-layers` and use it in your code like so:
+
 ```JavaScript
-const line = new L.HighlightableLayers.Polyline(
+import { HighlightablePolyline } from 'leaflet-highlightable-layers';
+const line = new HighlightablePolyline(
     [[51.96119, 11.79382], [53.16653, 14.04877]],
     { color: '#ffffff', weight: 3, opacity: 0.35, raised: false }
 ).addTo(map);
@@ -40,12 +43,23 @@ line.on("click", () => {
 });
 ```
 
+TypeScript is supported. Note that when using Leaflet.HighlightableLayers like this, `L.HighlightableLayers` is not available on the global `L` leaflet object.
+
+If you want to use Leaflet.HighlightableLayers in a static HTML page, it is available as `L.HighlightableLayers`:
+```javascript
+<script src="https://unpkg.com/leaflet"></script>
+<script src="https://unpkg.com/leaflet-highlightable-layers"></script>
+<script>
+    const line = new L.HighlightableLayers.HighlightablePolyline(...).addTo(map);
+</script>
+```
+
 The following classes are available:
-* `L.HighlightableLayers.Circle`
-* `L.HighlightableLayers.CircleMarker`
-* `L.HighlightableLayers.Polygon`
-* `L.HighlightableLayers.Polyline`
-* `L.HighlightableLayers.Rectangle`
+* `HighlightableCircle`
+* `HighlightableCircleMarker`
+* `HighlightablePolygon`
+* `HighlightablePolyline`
+* `HighlightableRectangle`
 
 These are direct sub classes of their Leaflet equivalents, so they can be used in the same way, with the following differences:
 * `layer.options` contains a modified version of the options that you have set for the layer. To access the unmodified options,
@@ -127,7 +141,7 @@ act as the interaction layer, while the 3 clones have different widths and color
 same pane, the order of the clones is important (the widest line first).
 
 ```javascript
-new L.HighlightableLayers.Polyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
+new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
     generateStyles: (options) => ({
         main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
         line1: { ...options, color: '#0000ff', weight: 30, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" },

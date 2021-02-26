@@ -27,10 +27,10 @@
 			}).addTo(map);
 
 			const layers = [
-				new L.HighlightableLayers.Polyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
-				new L.HighlightableLayers.Polyline([[51.96119, 11.79382], [53.16653, 14.04877]], { color: '#ffffff', weight: 3 }).addTo(map),
-				new L.HighlightableLayers.Polygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map),
-				new L.HighlightableLayers.Polyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
+				new L.HighlightableLayers.HighlightablePolyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
+				new L.HighlightableLayers.HighlightablePolyline([[51.96119, 11.79382], [53.16653, 14.04877]], { color: '#ffffff', weight: 3 }).addTo(map),
+				new L.HighlightableLayers.HighlightablePolygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map),
+				new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
 					generateStyles: (options) => ({
 						main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
 						line1: { ...options, color: '#0000ff', weight: 30, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" },
@@ -38,8 +38,8 @@
 						line3: { ...options, color: '#ff0000', weight: 10, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" }
 					})
 				}).addTo(map),
-				new L.HighlightableLayers.Circle([52.54463, 11.68121], { radius: 10000, color: "#ffff00" }).addTo(map),
-				new L.HighlightableLayers.Rectangle([[52.91056, 14.40308], [52.63806, 15.0705]], { color: "#ffaaaa" }).addTo(map)
+				new L.HighlightableLayers.HighlightableCircle([52.54463, 11.68121], { radius: 10000, color: "#ffff00" }).addTo(map),
+				new L.HighlightableLayers.HighlightableRectangle([[52.91056, 14.40308], [52.63806, 15.0705]], { color: "#ffaaaa" }).addTo(map)
 			];
 
 			// Test updating geometry
