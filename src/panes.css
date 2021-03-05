@@ -2,18 +2,18 @@
 	z-index: 621;
 }*/
 
-.leaflet-lhl-raised-pane {
+.leaflet-pane.leaflet-lhl-raised-pane {
 	z-index: 620;
 }
 
-.leaflet-lhl-raised-shadow-pane {
+.leaflet-pane.leaflet-lhl-raised-shadow-pane {
 	z-index: 619;
 }
 
-.leaflet-lhl-shadow-pane {
+.leaflet-pane.leaflet-lhl-shadow-pane {
 	z-index: 399;
 }
 
-.leaflet-lhl-almost-over-pane {
+.leaflet-pane.leaflet-lhl-almost-over-pane {
 	z-index: 201;
 }

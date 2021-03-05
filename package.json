@@ -1,6 +1,6 @@
 {
   "name": "leaflet-highlightable-layers",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Highlight Leaflet lines and polygons by adding a border and raise them above others. Add a transparent border to increase the tolerance for mouse/touch interactions.",
   "main": "./dist/L.HighlightableLayers.js",
   "types": "./dist/index.d.ts",
@@ -42,6 +42,5 @@
   },
   "peerDependencies": {
     "leaflet": "x"
-  },
-  "dependencies": {}
+  }
 }
