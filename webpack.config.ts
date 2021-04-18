@@ -17,6 +17,9 @@ module.exports = (env: any, argv: any): Configuration => {
 		},
 		mode: isDev ? "development" : "production",
 		devtool: isDev ? "eval-cheap-source-map" : "source-map",
+		optimization: {
+			minimize: false
+		},
 		module: {
 			rules: [
 				{
