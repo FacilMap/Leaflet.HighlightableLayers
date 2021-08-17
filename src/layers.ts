@@ -38,15 +38,11 @@ export function createHighlightableLayerClass<
         constructor(...args: any[]) {
             super(...args);
 
-            this.realOptions = clone(this.options) as HighlightableLayerOptions<O>;
-
-            if (defaultOptions) {
-                Object.assign(this.realOptions, defaultOptions);
-            }
-
-            if (!this.realOptions.generateStyles) {
-                this.realOptions.generateStyles = generatePolygonStyles as any;
-            }
+            this.realOptions = Object.assign(Object.create(Object.getPrototypeOf(this.options)), {
+                generateStyles: generatePolygonStyles,
+                ...defaultOptions,
+                ...this.options
+            });
 
             this.layers = {} as any;
             for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions) ?? {})) {
