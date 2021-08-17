@@ -5,7 +5,7 @@ Leaflet.HighlightableLayers provides a modified version of the vector layers inh
 [`L.Path`](https://leafletjs.com/reference-1.7.1.html#path) (for example Polyline, Polygon, etc.) with these additional features:
 * Lines can get an outline. For example, a blue line can get a black border to highlight it more. Polygons can get an outline
   for their border.
-* Mouse/touch interactions with thin lines gets some tolerance. For example, hovering or clicking a line will also work when the
+* Mouse/touch interactions with thin lines get some tolerance. For example, hovering or clicking a line will also work when the
   mouse pointer is a couple of pixels next to the line. This is similar to
   [Leaflet.AlmostOver](https://github.com/makinacorpus/Leaflet.AlmostOver), but the interactions trigger the usual Leaflet events
   on the layer rather than custom ones.
@@ -29,7 +29,7 @@ Usage
 
 If you are using a module bundler, you can install Leaflet.HighlightableLayers using `npm install -S leaflet-highlightable-layers` and use it in your code like so:
 
-```JavaScript
+```javascript
 import { HighlightablePolyline } from 'leaflet-highlightable-layers';
 const line = new HighlightablePolyline(
     [[51.96119, 11.79382], [53.16653, 14.04877]],
@@ -46,7 +46,7 @@ line.on("click", () => {
 TypeScript is supported. Note that when using Leaflet.HighlightableLayers like this, `L.HighlightableLayers` is not available on the global `L` leaflet object.
 
 If you want to use Leaflet.HighlightableLayers in a static HTML page, it is available as `L.HighlightableLayers`:
-```javascript
+```html
 <script src="https://unpkg.com/leaflet"></script>
 <script src="https://unpkg.com/leaflet-highlightable-layers"></script>
 <script>
@@ -77,12 +77,10 @@ counterparts):
   a 10px wide line and want a 1px border around it, you will have to specify `outlineWeight: 12` so that the outline is 2px wider
   than the line, so it will overlap 1px on each side. By default, the outline will be twice as wide as the line.
 * `outlineColor`: The color of the outline. By default, it will be black for bright lines and white for dark lines.
-* `outlineFill`: Whether to fill the outline (not relevant for Polylines).
 * `generateStyles`: A function that sets the styles for all the layer clones. See below ([Custom styles](#custom-styles)) for more
   info.
 
-**Tip:** Use `{ opacity: 0.35, raised: false, outlineFill: false }` for unselected layers and
-`{ opacity: 1, raised: true, outlineFill: true }` for selected layers.)
+**Tip:** Use `{ opacity: 0.35, raised: false }` for unselected layers and `{ opacity: 1, raised: true }` for selected layers.)
 
 
 ### Custom vector layers
@@ -120,10 +118,8 @@ What this does:
 ### Panes
 
 `Leaflet.HighlightableLayers` adds the following panes to the map:
-* `lhl-shadow`: Used for the outline. It has a `z-index` of 399, so it lies directly under the `overlayPane` of Leaflet (`z-index: 400`).
 * `lhl-raised`: Used for layers with `raised: true`. Has a `z-index` of 620, so it lies above markers (600), but below tooltips (650)
   and popups (700).
-* `lhl-raised-shadow`: Used for the outline of raised layers. Has a `z-index` of 619.
 * `lhl-almost-over`: Used for the invisible overlay that catches mouse/touch interactions. Has a `z-index` of 201. This means that it
   lies just above tile layers, but below everything else. This is so that it doesn't steal interactions from other layers. To not steal
   interactions from itself, the line and outline layers have `interaction: false`, so any mouse/touch interactions will go through to
@@ -136,17 +132,22 @@ The `generateStyles` option is used to generate the derived options for each of 
 the layer and is expected to return an object that maps layer identifiers to options objects. The `main` layer identifier refers to
 the layer itself. For each other layer identifier, a clone of the layer is created and the specified options are applied to it.
 
+The second argument passed to the `generateStyles` function is an instance of `L.Renderer`. This instance is created specifically
+for the layer (rather than using the pane renderer). This way, the layer and its clones are contained under a separate DOM element
+that can be styled separately. Internally, Leaflet.HighlightableLayers applies the opacity to the renderer container rather than
+to the individual layer clones, to make sure that the outline doesn't shine through the main line.
+
 In this example, we want to render a polyline with 3 clones to create a 3-striped line. The main line should be transparent and
 act as the interaction layer, while the 3 clones have different widths and colors each. Since we are adding all 3 clones to the
 same pane, the order of the clones is important (the widest line first).
 
 ```javascript
 new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
-    generateStyles: (options) => ({
+    generateStyles: (options, renderer) => ({
         main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
-        line1: { ...options, color: '#0000ff', weight: 30, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" },
-        line2: { ...options, color: '#00ff00', weight: 20, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" },
-        line3: { ...options, color: '#ff0000', weight: 10, interactive: false, pane: options.raised ? "lhl-raised" : "overlayPane" }
+        line1: { ...options, color: '#0000ff', weight: 30, interactive: false, renderer },
+        line2: { ...options, color: '#00ff00', weight: 20, interactive: false, renderer },
+        line3: { ...options, color: '#ff0000', weight: 10, interactive: false, renderer }
     })
 }).addTo(map);
 ```

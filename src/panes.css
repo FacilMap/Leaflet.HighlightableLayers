@@ -1,17 +1,5 @@
-/* .leaflet-lhl-marker-hightlight-pane {
-	z-index: 621;
-}*/
-
 .leaflet-pane.leaflet-lhl-raised-pane {
 	z-index: 620;
-}
-
-.leaflet-pane.leaflet-lhl-raised-shadow-pane {
-	z-index: 619;
-}
-
-.leaflet-pane.leaflet-lhl-shadow-pane {
-	z-index: 399;
 }
 
 .leaflet-pane.leaflet-lhl-almost-over-pane {

@@ -1,5 +1,5 @@
-import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle } from "leaflet";
-import { setLayerPane } from "./panes";
+import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle, Renderer, SVG } from "leaflet";
+import { setLayerPane, setLayerRenderer } from "./panes";
 import { generatePolygonStyles, generatePolylineStyles } from "./styles";
 import { clone } from "./utils";
 
@@ -7,8 +7,7 @@ export type HighlightableLayerOptions<O extends PathOptions> = O & {
     raised?: boolean;
     outlineColor?: string;
     outlineWeight?: number;
-    outlineFill?: boolean;
-    generateStyles?: (options: HighlightableLayerOptions<O>) => Record<string, O>;
+    generateStyles?: (options: HighlightableLayerOptions<O>, renderer: Renderer) => Record<string, O>;
 };
 
 export type HighlightableLayer<
@@ -17,7 +16,7 @@ export type HighlightableLayer<
 > = T & {
     realOptions: HighlightableLayerOptions<O>;
     layers: Record<string, T>;
-    generateStyles(options: HighlightableLayerOptions<O>): Record<string, O>;
+    generateStyles(options: HighlightableLayerOptions<O>, renderer: Renderer): Record<string, O>;
     setStyle(style: Partial<HighlightableLayerOptions<O>>): HighlightableLayer<T, O>;
 };
 
@@ -34,6 +33,7 @@ export function createHighlightableLayerClass<
         options!: O;
         realOptions: HighlightableLayerOptions<O>;
         layers: Record<string, InstanceType<B>>;
+        _isAdding = false;
 
         constructor(...args: any[]) {
             super(...args);
@@ -45,52 +45,80 @@ export function createHighlightableLayerClass<
             });
 
             this.layers = {} as any;
-            for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions) ?? {})) {
+            for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions, new SVG()) ?? {})) {
                 if (layerName !== "main") {
                     this.layers[layerName] = new BaseClass(...args) as InstanceType<B>;
                 }
             }
+        }
 
-            this.setStyle({});
+        beforeAdd(map: Map) {
+            // Use a custom renderer for each layer so that it creates an additional element that we can set an opacity on
+            this._renderer = map._createRenderer();
+            map.addLayer(this._renderer);
+
+            return this;
         }
 
         onAdd(map: Map) {
             super.onAdd(map);
-    
+
             for (const layerName of Object.keys(this.layers)) {
                 map.addLayer(this.layers[layerName]);
             }
-    
+
+            if (!this._isAdding) {
+                this._isAdding = true;
+                try {
+                    this.setStyle({});
+                } finally {
+                    this._isAdding = false;
+                }
+            }
+
             return this as any;
         }
-    
+
         onRemove(map: Map) {
             for (const layerName of Object.keys(this.layers)) {
                 map.removeLayer(this.layers[layerName]);
             }
-    
+            map.removeLayer(this._renderer!);
+
             super.onRemove(map);
-    
+
             return this as any;
         }
-    
+
         setStyle(style: Partial<HighlightableLayerOptions<O>>) {
             Object.assign(this.realOptions, style);
-    
-            const styles = this.realOptions.generateStyles?.(this.realOptions) ?? { main: { ...this.realOptions } };
-    
+
+            const renderer = this._renderer!;
+            renderer.options.pane = this.realOptions.raised ? "lhl-raised" : this.realOptions.pane;
+            if (renderer._container)
+                renderer.getPane()!.appendChild(renderer._container);
+
+            const styles = this.realOptions.generateStyles?.(Object.assign(clone(this.realOptions), { opacity: 1 }), renderer) ?? { main: clone(this.realOptions) };
+
             if (styles.main.pane)
                 setLayerPane(this, styles.main.pane);
-    
+            if (styles.main.renderer)
+                setLayerRenderer(this, styles.main.renderer);
+
             super.setStyle(styles.main);
-    
+
             for (const layerName of Object.keys(this.layers)) {
                 if (styles[layerName].pane)
                     setLayerPane(this.layers[layerName], styles[layerName].pane!);
-    
+                if (styles[layerName].renderer)
+                    setLayerRenderer(this.layers[layerName], styles[layerName].renderer!);
+
                 this.layers[layerName].setStyle(styles[layerName]);
             }
-    
+
+            if (renderer._container)
+                renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
+
             return this as any;
         }
     } as any;
