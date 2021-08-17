@@ -10,7 +10,7 @@ export function generatePolygonStyles(options: HighlightableLayerOptions<PathOpt
 
     // A black border makes the lines look thicker, thus we decrease the thickness to make them look the original size again.
     // If the user has specified a custom look for the outline, let's not do any magic.
-    const lineWeight = (options.color == null && options.outlineWeight == null && isBright) ? Math.round(options.weight! / 1.6) : options.weight!;
+    const lineWeight = (options.outlineColor == null && options.outlineWeight == null && isBright) ? Math.round(options.weight! / 1.6) : options.weight!;
 
     const borderWeight = options.outlineWeight ?? (lineWeight * 2);
 
@@ -41,7 +41,7 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 
     // A black border makes the lines look thicker, thus we decrease the thickness to make them look the original size again.
     // If the user has specified a custom look for the outline, let's not do any magic.
-    const lineWeight = (options.color == null && options.outlineWeight == null && isBright) ? Math.round(options.weight! / 1.6) : options.weight!;
+    const lineWeight = (options.outlineColor == null && options.outlineWeight == null && isBright) ? Math.round(options.weight! / 1.6) : options.weight!;
 
     const borderWeight = options.outlineWeight ?? (lineWeight * 2);
 
