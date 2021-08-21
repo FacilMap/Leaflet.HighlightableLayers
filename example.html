@@ -28,7 +28,10 @@
 
 			const layers = [
 				new L.HighlightableLayers.HighlightablePolyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
-				new L.HighlightableLayers.HighlightablePolyline([[51.96119, 11.79382], [53.16653, 14.04877]], { color: '#ffffff', weight: 3 }).addTo(map),
+
+				// Test empty polyline, setting coordinates later
+				new L.HighlightableLayers.HighlightablePolyline([], { color: '#ffffff', weight: 3 }).addTo(map),
+
 				new L.HighlightableLayers.HighlightablePolygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map),
 				new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
 					generateStyles: (options, renderer) => ({
@@ -43,6 +46,7 @@
 			];
 
 			// Test updating geometry
+			layers[1].setLatLngs([[51.96119, 11.79382], [53.16653, 14.04877]]);
 			layers[4].setRadius(20000);
 
 			function setHighlightedLayer(layer) {

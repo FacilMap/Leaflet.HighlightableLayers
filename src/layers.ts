@@ -48,6 +48,15 @@ export function createHighlightableLayerClass<
             for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions, new SVG()) ?? {})) {
                 if (layerName !== "main") {
                     this.layers[layerName] = new BaseClass(...args) as InstanceType<B>;
+                    this.layers[layerName].options.interactive = false;
+
+                    // Workaround to avoid error when calling setStyle() on Polyline without points
+                    if (BaseClass === Polyline as any || BaseClass.prototype instanceof Polyline) {
+                        this.layers[layerName]._updateBounds = function(this: Polyline) {
+                            if (this._rawPxBounds)
+                                BaseClass.prototype._updateBounds.call(this);
+                        };
+                    }
                 }
             }
         }
@@ -67,14 +76,9 @@ export function createHighlightableLayerClass<
                 map.addLayer(this.layers[layerName]);
             }
 
-            if (!this._isAdding) {
-                this._isAdding = true;
-                try {
-                    this.setStyle({});
-                } finally {
-                    this._isAdding = false;
-                }
-            }
+            Promise.resolve().then(() => {
+                this.setStyle({});
+            });
 
             return this as any;
         }
@@ -93,7 +97,7 @@ export function createHighlightableLayerClass<
         setStyle(style: Partial<HighlightableLayerOptions<O>>) {
             Object.assign(this.realOptions, style);
 
-            const renderer = this._renderer!;
+            const renderer = this._renderer || new SVG();
             renderer.options.pane = this.realOptions.raised ? "lhl-raised" : this.realOptions.pane;
             if (renderer._container)
                 renderer.getPane()!.appendChild(renderer._container);
@@ -120,6 +124,12 @@ export function createHighlightableLayerClass<
                 renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
 
             return this as any;
+        }
+
+        _updateBounds(): void {
+            // Workaround to avoid error when calling setStyle() on Polyline without points
+            if (!(this instanceof Polyline) || this._rawPxBounds)
+                super._updateBounds();
         }
     } as any;
 

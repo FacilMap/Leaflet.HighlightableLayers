@@ -1,4 +1,4 @@
-import { Layer, Map, Path, Renderer } from "leaflet";
+import { Layer, Map, Path, Renderer, Util } from "leaflet";
 import "./panes.css";
 
 Map.addInitHook(function (this: Map) {
@@ -22,6 +22,12 @@ export function setLayerRenderer(layer: Path, renderer: Renderer) {
 
     layer.options.renderer = renderer;
 
-    if(layer["_map"])
-        layer["_map"].removeLayer(layer).addLayer(layer);
+    if (layer._renderer) {
+        // Like layer.onRemove() and layer.onAdd(), but we don't want to really remove and add the layer (to avoid an infinite loop)
+        layer._renderer._removePath(layer);
+        layer._renderer = renderer;
+        layer._renderer._layers[Util.stamp(layer)] = layer;
+        layer._renderer._updateStyle(layer);
+        layer._renderer._addPath(layer);
+    }
 }
