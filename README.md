@@ -131,6 +131,9 @@ What this does:
 The `generateStyles` option is used to generate the derived options for each of the layer clones. It receives the options object of
 the layer and is expected to return an object that maps layer identifiers to options objects. The `main` layer identifier refers to
 the layer itself. For each other layer identifier, a clone of the layer is created and the specified options are applied to it.
+The main layer is the only interactive one that will receive mouse events, the clones are non-interactive. Also keep in mind that
+the order matters, layers that appear later in the list will be on top of layers earlier in the list (as long as they are rendered
+on the same pane).
 
 The second argument passed to the `generateStyles` function is an instance of `L.Renderer`. This instance is created specifically
 for the layer (rather than using the pane renderer). This way, the layer and its clones are contained under a separate DOM element
@@ -145,9 +148,9 @@ same pane, the order of the clones is important (the widest line first).
 new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
     generateStyles: (options, renderer) => ({
         main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
-        line1: { ...options, color: '#0000ff', weight: 30, interactive: false, renderer },
-        line2: { ...options, color: '#00ff00', weight: 20, interactive: false, renderer },
-        line3: { ...options, color: '#ff0000', weight: 10, interactive: false, renderer }
+        line1: { ...options, color: '#0000ff', weight: 30, renderer },
+        line2: { ...options, color: '#00ff00', weight: 20, renderer },
+        line3: { ...options, color: '#ff0000', weight: 10, renderer }
     })
 }).addTo(map);
 ```

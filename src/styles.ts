@@ -25,8 +25,7 @@ export function generatePolygonStyles(options: HighlightableLayerOptions<PathOpt
         fill: {
             ...options,
             renderer,
-            stroke: false,
-            interactive: false
+            stroke: false
         },
 
         outline: {
@@ -34,16 +33,14 @@ export function generatePolygonStyles(options: HighlightableLayerOptions<PathOpt
             color: outlineColor,
             weight: outlineWeight,
             renderer,
-            fill: false,
-            interactive: false
+            fill: false
         },
 
         border: {
             ...options,
             weight: lineWeight,
             renderer,
-            fill: false,
-            interactive: false
+            fill: false
         }
     };
 }
@@ -65,15 +62,13 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
             ...options,
             color: outlineColor,
             weight: outlineWeight,
-            renderer,
-            interactive: false
+            renderer
         },
 
         line: {
             ...options,
             weight: lineWeight,
-            renderer,
-            interactive: false
+            renderer
         },
 
         main: {
