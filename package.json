@@ -42,5 +42,6 @@
   },
   "peerDependencies": {
     "leaflet": "x"
-  }
+  },
+  "packageManager": "yarn@3.2.0"
 }
