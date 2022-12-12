@@ -23,5 +23,10 @@ export default defineConfig({
 			},
 			external: ['leaflet']
 		}
+	},
+	resolve: {
+		alias: {
+			'leaflet-highlightable-layers': './src/index.ts'
+		}
 	}
 });
