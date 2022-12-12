@@ -30,7 +30,7 @@ export function createHighlightableLayerClass<
     defaultOptions?: HighlightableLayerOptions<O>
 ): new (arg1: ConstructorParameters<B>[0], options?: HighlightableLayerOptions<O>) => HighlightableLayer<T, O> {
     const result = class HighlightableLayer extends BaseClass {
-        options!: O;
+        declare options: O;
         realOptions: HighlightableLayerOptions<O>;
         layers: Record<string, InstanceType<B>>;
         _isAdding = false;
