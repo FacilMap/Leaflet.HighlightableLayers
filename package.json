@@ -31,16 +31,16 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.0",
-    "leaflet": "^1.9.3",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.0",
-    "vite-plugin-css-injected-by-js": "^2.1.1",
-    "vite-plugin-dts": "^1.7.1"
+    "@types/leaflet": "^1.9.8",
+    "leaflet": "^1.9.4",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-plugin-css-injected-by-js": "^3.3.1",
+    "vite-plugin-dts": "^3.7.0"
   },
   "peerDependencies": {
     "leaflet": "x"
   },
-  "packageManager": "yarn@3.2.0"
+  "packageManager": "yarn@4.0.2"
 }
