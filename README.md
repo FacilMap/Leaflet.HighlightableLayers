@@ -2,7 +2,7 @@ Leaflet.HighlightableLayers
 ===========================
 
 Leaflet.HighlightableLayers provides a modified version of the vector layers inheriting from
-[`L.Path`](https://leafletjs.com/reference-1.7.1.html#path) (for example Polyline, Polygon, etc.) with these additional features:
+[`L.Path`](https://leafletjs.com/reference.html#path) (for example Polyline, Polygon, etc.) with these additional features:
 * Lines can get an outline. For example, a blue line can get a black border to highlight it more. Polygons can get an outline
   for their border.
 * Mouse/touch interactions with thin lines get some tolerance. For example, hovering or clicking a line will also work when the
@@ -20,37 +20,52 @@ would be rendered underneath it (for the outline), along with a 20px wide transp
 
 ![](./screenshot.png)
 
-[Demo](https://unpkg.com/leaflet-highlightable-layers/example.html)\
+[Demo](https://esm.sh/leaflet-highlightable-layers/example.html)\
 [Demo on FacilMap](https://facilmap.org/r8pFjVqUdNNP)
 
 
 Usage
 -----
 
-If you are using a module bundler, you can install Leaflet.HighlightableLayers using `npm install -S leaflet-highlightable-layers` and use it in your code like so:
+Since release 2.0.0, Leaflet.HighlightableLayers is published as an ES module only. If you are using a module bundler, you can install it using `npm install -S leaflet-highlightable-layers` and use it in your code like so:
 
 ```javascript
 import { HighlightablePolyline } from 'leaflet-highlightable-layers';
 const line = new HighlightablePolyline(
-    [[51.96119, 11.79382], [53.16653, 14.04877]],
-    { color: '#ffffff', weight: 3, opacity: 0.35, raised: false }
+	[[51.96119, 11.79382], [53.16653, 14.04877]],
+	{ color: '#ffffff', weight: 3, opacity: 0.35, raised: false }
 ).addTo(map);
 
 line.on("click", () => {
-    // Make the line look selected/unselected on click
-    const shouldHighlight = !line.realOptions.raised;
-    line.setStyle({ opacity: shouldHighlight ? 1 : 0.35, raised: shouldHighlight });
+	// Make the line look selected/unselected on click
+	const shouldHighlight = !line.realOptions.raised;
+	line.setStyle({ opacity: shouldHighlight ? 1 : 0.35, raised: shouldHighlight });
 });
 ```
 
-TypeScript is supported. Note that when using Leaflet.HighlightableLayers like this, `L.HighlightableLayers` is not available on the global `L` leaflet object.
+TypeScript is supported.
 
-If you want to use Leaflet.HighlightableLayers in a static HTML page, it is available as `L.HighlightableLayers`:
+If you want to use Leaflet.HighlightableLayers directly inside a website without using a module bundler (not recommended for production), you need to make sure to import it and Leaflet as a module, for example from esm.sh:
 ```html
-<script src="https://unpkg.com/leaflet"></script>
-<script src="https://unpkg.com/leaflet-highlightable-layers"></script>
-<script>
-    const line = new L.HighlightableLayers.HighlightablePolyline(...).addTo(map);
+<script type="importmap">
+	{
+		"imports": {
+			"leaflet": "https://esm.sh/leaflet",
+			"leaflet-highlightable-layers": "https://esm.sh/leaflet-auto-graticule"
+		}
+	}
+</script>
+<script type="module">
+	import L from "leaflet";
+	import { HighlightablePolyline } from "leaflet-highlightable-layers";
+
+	const map = L.map('map', { center: [0, 0], zoom: 5 });
+	L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+		attribution: '© <a href="http://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
+		noWrap: true
+	}).addTo(map);
+
+	const line = new HighlightablePolyline(...).addTo(map);
 </script>
 ```
 
@@ -90,7 +105,9 @@ method to create a subclass of your custom layer class with all the necessary me
 geometry of the layer in the second parameter. In case of `L.Circle` for example, that would be `setRadius` and `setLatLng`.
 
 ```javascript
-const HighlightableCustomVectorLayer = L.HighlightableLayers.createHighlightableLayerClass(L.CustomVectorClass, ['setRadius', 'setLatLng']);
+import { createHighlightableLayerClass } from "leaflet-highlightable-layers";
+
+const HighlightableCustomVectorLayer = createHighlightableLayerClass(L.CustomVectorClass, ['setRadius', 'setLatLng']);
 
 new HighlightableCustomVectorLayer().addTo(map);
 ```
@@ -145,12 +162,12 @@ act as the interaction layer, while the 3 clones have different widths and color
 same pane, the order of the clones is important (the widest line first).
 
 ```javascript
-new L.HighlightableLayers.HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
-    generateStyles: (options, renderer) => ({
-        main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
-        line1: { ...options, color: '#0000ff', weight: 30, renderer },
-        line2: { ...options, color: '#00ff00', weight: 20, renderer },
-        line3: { ...options, color: '#ff0000', weight: 10, renderer }
-    })
+new HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
+	generateStyles: (options, renderer) => ({
+		main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
+		line1: { ...options, color: '#0000ff', weight: 30, renderer },
+		line2: { ...options, color: '#00ff00', weight: 20, renderer },
+		line3: { ...options, color: '#ff0000', weight: 10, renderer }
+	})
 }).addTo(map);
 ```

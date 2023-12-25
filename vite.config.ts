@@ -5,7 +5,7 @@ import dtsPlugin from 'vite-plugin-dts';
 export default defineConfig({
 	plugins: [
 		cssInjectedByJsPlugin(),
-		dtsPlugin()
+		dtsPlugin({ rollupTypes: true })
 	],
 	build: {
 		sourcemap: true,
@@ -13,15 +13,11 @@ export default defineConfig({
 		lib: {
 			entry: './src/index.ts',
 			name: 'L.HighlightableLayers',
-			fileName: (format) => `L.HighlightableLayers.${format === 'umd' ? 'js' : 'mjs'}`
+			fileName: () => "L.HighlightableLayers.js",
+			formats: ["es"]
 		},
 		rollupOptions: {
-			output: {
-				globals: {
-					'leaflet': 'L'
-				}
-			},
-			external: ['leaflet']
+			external: (id) => !id.startsWith("./") && !id.startsWith("../") && /* resolved internal modules */ !id.startsWith("/")
 		}
 	},
 	resolve: {
