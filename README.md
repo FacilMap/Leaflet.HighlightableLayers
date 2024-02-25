@@ -51,7 +51,7 @@ If you want to use Leaflet.HighlightableLayers directly inside a website without
 	{
 		"imports": {
 			"leaflet": "https://esm.sh/leaflet",
-			"leaflet-highlightable-layers": "https://esm.sh/leaflet-auto-graticule"
+			"leaflet-highlightable-layers": "https://esm.sh/leaflet-highlightable-layers"
 		}
 	}
 </script>
