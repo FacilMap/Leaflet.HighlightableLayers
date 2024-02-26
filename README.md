@@ -90,13 +90,29 @@ counterparts):
 * `raised`: If set to `true`, will raise the layer above the others.
 * `outlineWeight`: The width of the outline. Note that the outline is just another line underneath the actual line. So if you have
   a 10px wide line and want a 1px border around it, you will have to specify `outlineWeight: 12` so that the outline is 2px wider
-  than the line, so it will overlap 1px on each side. By default, the outline will be twice as wide as the line.
-* `outlineColor`: The color of the outline. By default, it will be black for bright lines and white for dark lines.
+  than the line, so it will overlap 1px on each side. By default, the outline will be twice as wide as the line ([details below](#default-outline-style)).
+* `outlineColor`: The color of the outline. By default, it will be black for bright lines and white for dark lines ([details below](#default-outline-style)).
 * `generateStyles`: A function that sets the styles for all the layer clones. See below ([Custom styles](#custom-styles)) for more
   info.
 
 **Tip:** Use `{ opacity: 0.35, raised: false }` for unselected layers and `{ opacity: 1, raised: true }` for selected layers.)
 
+
+### Dashed/dotted lines
+
+Using [`dashArray`](https://leafletjs.com/reference.html#path-dasharray), dotted/dashed lines can be displayed.
+
+To render a dotted line, the first number of `dashArray` needs to be `0` and the second number any number larger than `0`. A good example for the second number would be 1.6 times the `weight`. Here is an example:
+
+```javascript
+new HighlightablePolyline([[52.3, 12], [52.7, 14.2]], {
+	color: "#0000ff",
+	weight: 10,
+	dashArray: "0 16"
+});
+```
+
+To render a dashed line, simply specify one or two numbers larger than `0` for `dashArray`.
 
 ### Custom vector layers
 
@@ -170,4 +186,37 @@ new HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
 		line3: { ...options, color: '#ff0000', weight: 10, renderer }
 	})
 }).addTo(map);
+```
+
+# Technical details
+
+## Default outline style
+
+The outline style (border around the line) can be controlled through the `outlineWeight` and `outlineColor` options.
+
+If the `outlineColor` option is not defined, a black (`#000000`) outline will be used for bright lines and a white (`#ffffff`) outline for dark lines. Whether a line is dark or bright is determined by calculating its luminance using the formula `Math.sqrt(0.241*r*r + 0.691*g*g + 0.068*b*b)`, where `r`, `g` and `b` are the red/green/blue levels on a scale from `0` to `1`. If the luminance is greater than `0.7`, the line is considered bright. Leaflet.HighlightableLayers exports this formula as `getBrightness(color)` and `isBright(color)`, where `color` is the hex code:
+
+```javascript
+import { getBrightness, isBright } from "leaflet-highlightable-layers";
+
+const color = "#0000ff";
+const brightness = getBrightness(color);
+const bright = isBright(colour);
+```
+
+If `outlineWeight` is not defined, `2 * weight` will be used, so the outline will be twice as thick as the line itself.
+
+If both `outlineColor` and `outlineWeight` are not defined, the line `weight` will be reduced by 47.5 % for bright lines to compensate for the wider visual appearance of the black outline. For example, a bright line with the specified `weight` of `10` would be rendered with a line width of `6` and a black outline with a width of `12`, whereas a dark line with the specified `weight` of `10` would be rendered with a line width of `10` and a white outline with a width of `20`. Both lines would (subjectively) appear to be the same width.
+
+If you want to predict the settings that will be used for a particular polyline, simply construct an instance without any track points and read the options from its `line` and `outline` layers:
+
+```javascript
+import { HighlightablePolyline } from "leaflet-highlightable-layers";
+
+const testLine = new HighlightablePolyline([], { color: '#ffffff', weight: 10 });
+
+const color = testLine.layers.line.options.color; // #ffffff
+const weight = testLine.layers.line.options.weight; // 6
+const outlineColor = testLine.layers.outline.options.color; // #000000
+const outlineWeight = testLine.layers.outline.options.weight; // 12
 ```

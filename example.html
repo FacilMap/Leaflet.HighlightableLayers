@@ -52,7 +52,18 @@
 					})
 				}).addTo(map),
 				new HighlightableCircle([52.54463, 11.68121], { radius: 10000, color: "#ffff00" }).addTo(map),
-				new HighlightableRectangle([[52.91056, 14.40308], [52.63806, 15.0705]], { color: "#ffaaaa" }).addTo(map)
+				new HighlightableRectangle([[52.91056, 14.40308], [52.63806, 15.0705]], { color: "#ffaaaa" }).addTo(map),
+
+				new HighlightablePolyline([[52.4, 12], [52.4, 14.2]], {
+					color: "#ffffff",
+					weight: 7,
+					dashArray: "0 11"
+				}).addTo(map),
+				new HighlightablePolyline([[52.42, 12], [52.42, 14.2]], {
+					color: "#000000",
+					weight: 7,
+					dashArray: "0 11"
+				}).addTo(map),
 			];
 
 			// Test updating geometry

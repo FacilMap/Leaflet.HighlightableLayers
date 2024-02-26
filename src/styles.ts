@@ -1,25 +1,33 @@
 import { PathOptions, Renderer } from "leaflet";
 import { HighlightableLayerOptions } from "./layers";
-import { getBrightness } from "./utils";
+import { getBrightness, isBright } from "./utils";
+
+export const BRIGHT_OUTLINE_COLOR = "#000000";
+export const DARK_OUTLINE_COLOR = "#ffffff";
+export const BRIGHT_OUTLINE_WEIGHT_REDUCTION_FACTOR = 1.6;
+export const OUTLINE_WEIGHT_FACTOR = 2;
+export const POLYLINE_MIN_INTERACTION_WIDTH = 20;
 
 export function generatePolygonStyles(options: HighlightableLayerOptions<PathOptions>, renderer: Renderer): Record<string, PathOptions> {
-    const isBright = getBrightness(options.color!.replace(/^#/, "")) > 0.7
+    const bright = isBright(options.color!);
     const outlineColor = options.outlineColor ?? (
-        isBright ? "#000000" : "#ffffff"
+        bright ? BRIGHT_OUTLINE_COLOR : DARK_OUTLINE_COLOR
     );
 
     // A black outline makes the lines look thicker, thus we decrease the thickness to make them look the original size again.
     // If the user has specified a custom look for the outline, let's not do any magic.
-    const lineWeight = (options.outlineColor == null && options.outlineWeight == null && isBright) ? Math.round(options.weight! / 1.6) : options.weight!;
+    const lineWeight = (options.outlineColor == null && options.outlineWeight == null && bright) ? Math.round(options.weight! / BRIGHT_OUTLINE_WEIGHT_REDUCTION_FACTOR) : options.weight!;
 
-    const outlineWeight = options.outlineWeight ?? (lineWeight * 2);
+    const outlineWeight = options.outlineWeight ?? (lineWeight * OUTLINE_WEIGHT_FACTOR);
 
     return {
         main: {
             ...options,
             renderer,
             weight: outlineWeight,
-            opacity: 0
+            opacity: 0,
+            dashArray: undefined,
+            dashOffset: undefined
         },
 
         fill: {
@@ -73,8 +81,10 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 
         main: {
             opacity: 0,
-            weight: Math.max(20, outlineWeight, lineWeight),
-            pane: "lhl-almost-over"
+            weight: Math.max(POLYLINE_MIN_INTERACTION_WIDTH, outlineWeight, lineWeight),
+            pane: "lhl-almost-over",
+            dashArray: undefined,
+            dashOffset: undefined
         }
     };
 }
