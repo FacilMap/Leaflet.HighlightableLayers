@@ -40,7 +40,8 @@
 				new HighlightablePolyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
 
 				// Test empty polyline, setting coordinates later
-				new HighlightablePolyline([], { color: '#ffffff', weight: 3 }).addTo(map),
+				new HighlightablePolyline([], { color: '#ffffff', weight: 3 }).addTo(map).setLatLngs([[51.96119, 11.79382], [53.16653, 14.04877]]),
+				new HighlightablePolyline([], { color: '#ffffff', weight: 3 }).setLatLngs([[51.86119, 11.79382], [53.06653, 14.04877]]).addTo(map),
 
 				new HighlightablePolygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map),
 				new HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
@@ -51,8 +52,10 @@
 						line3: { ...options, color: '#ff0000', weight: 10, renderer }
 					})
 				}).addTo(map),
-				new HighlightableCircle([52.54463, 11.68121], { radius: 10000, color: "#ffff00" }).addTo(map),
-				new HighlightableRectangle([[52.91056, 14.40308], [52.63806, 15.0705]], { color: "#ffaaaa" }).addTo(map),
+				new HighlightableCircle([52.54463, 11.68121], { radius: 100, color: "#ffff00" }).addTo(map).setRadius(20000),
+				new HighlightableCircle([52.84463, 11.98121], { radius: 100, color: "#ffff00" }).setRadius(20000).addTo(map),
+				new HighlightableRectangle([[52.91056, 14.40308], [52.91057, 14.40309]], { color: "#ffaaaa" }).setBounds([[52.91056, 14.40308], [52.63806, 15.0705]]).addTo(map),
+				new HighlightableRectangle([[52.91056, 14.40308], [52.91057, 14.40309]], { color: "#ffaaaa" }).addTo(map).setBounds([[52.51056, 14.40308], [52.23806, 15.0705]]),
 
 				new HighlightablePolyline([[52.4, 12], [52.4, 14.2]], {
 					color: "#ffffff",
@@ -65,10 +68,6 @@
 					dashArray: "0 11"
 				}).addTo(map),
 			];
-
-			// Test updating geometry
-			layers[1].setLatLngs([[51.96119, 11.79382], [53.16653, 14.04877]]);
-			layers[4].setRadius(20000);
 
 			function setHighlightedLayer(layer) {
 				for (const l of layers) {
@@ -87,6 +86,8 @@
 			});
 
 			setHighlightedLayer(null);
+
+			window.lhl = { map, layers, setHighlightedLayer, L, HighlightableCircle, HighlightableRectangle, HighlightablePolygon, HighlightablePolyline };
 		</script>
 	</body>
 </html>

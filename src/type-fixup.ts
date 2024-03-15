@@ -16,7 +16,7 @@ declare module "leaflet" {
         _updateBounds(): void;
     }
 
-    interface Renderer {
+    interface Renderer extends Layer {
         _container: HTMLElement;
         _initPath(layer: Path): void;
         _addPath(layer: Path): void;

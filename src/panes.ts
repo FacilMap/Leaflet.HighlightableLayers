@@ -24,10 +24,15 @@ export function setLayerRenderer(layer: Path, renderer: Renderer) {
 
     if (layer._renderer) {
         // Like layer.onRemove() and layer.onAdd(), but we don't want to really remove and add the layer (to avoid an infinite loop)
-        layer._renderer._removePath(layer);
+        if (renderer["_map"] && layer["_path"]) {
+            layer._renderer._removePath(layer);
+        }
+
         layer._renderer = renderer;
         layer._renderer._layers[Util.stamp(layer)] = layer;
         layer._renderer._updateStyle(layer);
-        layer._renderer._addPath(layer);
+        if (renderer["_map"] && layer["_path"]) {
+            layer._renderer._addPath(layer);
+        }
     }
 }

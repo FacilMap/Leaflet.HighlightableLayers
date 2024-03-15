@@ -1,4 +1,4 @@
-import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle, Renderer, SVG } from "leaflet";
+import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle, Renderer } from "leaflet";
 import { setLayerPane, setLayerRenderer } from "./panes";
 import { generatePolygonStyles, generatePolylineStyles } from "./styles";
 import { clone } from "./utils";
@@ -26,13 +26,14 @@ export function createHighlightableLayerClass<
     O extends PathOptions
 >(
     BaseClass: B,
+    createLayer: (mainLayer: HighlightableLayer<T, O>) => InstanceType<B>,
     cloneMethods: Array<keyof T> = [],
     defaultOptions?: HighlightableLayerOptions<O>
 ): new (arg1: ConstructorParameters<B>[0], options?: HighlightableLayerOptions<O>) => HighlightableLayer<T, O> {
     const result = class HighlightableLayer extends BaseClass {
         declare options: O;
         realOptions: HighlightableLayerOptions<O>;
-        layers: Record<string, InstanceType<B>>;
+        layers: Record<string, InstanceType<B>> = {};
         _isAdding = false;
 
         constructor(...args: any[]) {
@@ -43,28 +44,17 @@ export function createHighlightableLayerClass<
                 ...defaultOptions,
                 ...this.options
             });
-
-            this.layers = {} as any;
-            for (const layerName of Object.keys(this.realOptions.generateStyles!(this.realOptions, new SVG()) ?? {})) {
-                if (layerName !== "main") {
-                    this.layers[layerName] = new BaseClass(...args) as InstanceType<B>;
-                    this.layers[layerName].options.interactive = false;
-
-                    // Workaround to avoid error when calling setStyle() on Polyline without points
-                    if (BaseClass === Polyline as any || BaseClass.prototype instanceof Polyline) {
-                        this.layers[layerName]._updateBounds = function(this: Polyline) {
-                            if (this._rawPxBounds)
-                                BaseClass.prototype._updateBounds.call(this);
-                        };
-                    }
-                }
-            }
         }
 
         beforeAdd(map: Map) {
             // Use a custom renderer for each layer so that it creates an additional element that we can set an opacity on
-            this._renderer = map._createRenderer();
-            map.addLayer(this._renderer);
+            const renderer = map._createRenderer();
+
+            this._updateStyle(renderer);
+
+            this._renderer = renderer;
+            map.addLayer(renderer);
+            renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
 
             return this;
         }
@@ -76,10 +66,6 @@ export function createHighlightableLayerClass<
                 map.addLayer(this.layers[layerName]);
             }
 
-            Promise.resolve().then(() => {
-                this.setStyle({});
-            });
-
             return this as any;
         }
 
@@ -87,22 +73,47 @@ export function createHighlightableLayerClass<
             for (const layerName of Object.keys(this.layers)) {
                 map.removeLayer(this.layers[layerName]);
             }
-            map.removeLayer(this._renderer!);
 
             super.onRemove(map);
+
+            map.removeLayer(this._renderer!);
+            delete this._renderer;
 
             return this as any;
         }
 
-        setStyle(style: Partial<HighlightableLayerOptions<O>>) {
-            Object.assign(this.realOptions, style);
-
-            const renderer = this._renderer || new SVG();
+        _updateStyle(renderer: Renderer) {
             renderer.options.pane = this.realOptions.raised ? "lhl-raised" : this.realOptions.pane;
             if (renderer._container)
-                renderer.getPane()!.appendChild(renderer._container);
+                renderer.getPane()!.appendChild(renderer._container); // Move renderer to right pane
 
-            const styles = this.realOptions.generateStyles?.(Object.assign(clone(this.realOptions), { opacity: 1 }), renderer) ?? { main: clone(this.realOptions) };
+            const styles = this.realOptions.generateStyles?.(Object.assign(clone(this.realOptions), { opacity: 1 }), renderer) ?? { main: clone(this.realOptions) }
+
+            for (const layerName of Object.keys(this.layers)) {
+                if (!Object.prototype.hasOwnProperty.call(styles, layerName)) {
+                    if (this._map) {
+                        this._map.removeLayer(this.layers[layerName]);
+                    }
+                    delete this.layers[layerName];
+                }
+            }
+
+            for (const layerName of Object.keys(styles)) {
+                if (layerName !== "main") {
+                    if (!this.layers[layerName]) {
+                        this.layers[layerName] = createLayer(this as any);
+                        this.layers[layerName].options.interactive = false;
+
+                        // Workaround to avoid error when calling setStyle() on Polyline without points
+                        if (BaseClass === Polyline as any || BaseClass.prototype instanceof Polyline) {
+                            this.layers[layerName]._updateBounds = function(this: Polyline) {
+                                if (this._rawPxBounds)
+                                    BaseClass.prototype._updateBounds.call(this);
+                            };
+                        }
+                    }
+                }
+            }
 
             if (styles.main.pane)
                 setLayerPane(this, styles.main.pane);
@@ -123,6 +134,20 @@ export function createHighlightableLayerClass<
             if (renderer._container)
                 renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
 
+            if (this._map) {
+                for (const layer of Object.values(this.layers)) {
+                    if (!layer["_map"]) {
+                        this._map.addLayer(layer);
+                    }
+                }
+            }
+        }
+
+        setStyle(style: Partial<HighlightableLayerOptions<O>>) {
+            Object.assign(this.realOptions, style);
+            if (this._renderer) {
+                this._updateStyle(this._renderer);
+            }
             return this as any;
         }
 
@@ -146,14 +171,35 @@ export function createHighlightableLayerClass<
     return result;
 }
 
-export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(Circle, ['setRadius', 'setLatLng']);
+export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(
+    Circle,
+    (mainLayer) => new Circle(mainLayer.getLatLng(), mainLayer.getRadius()),
+    ['setRadius', 'setLatLng']
+);
 
-export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(CircleMarker, ['setRadius', 'setLatLng']);
+export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(
+    CircleMarker,
+    (mainLayer) => new CircleMarker(mainLayer.getLatLng()),
+    ['setRadius', 'setLatLng']
+);
 
-export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(Polygon, ['setLatLngs']);
+export const HighlightablePolygon = createHighlightableLayerClass<typeof Polygon, Polygon, PolylineOptions>(
+    Polygon,
+    (mainLayer) => new Polygon(mainLayer.getLatLngs()),
+    ['setLatLngs']
+);
 
-export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(Polyline, ['setLatLngs'], {
-    generateStyles: generatePolylineStyles
-});
+export const HighlightablePolyline = createHighlightableLayerClass<typeof Polyline, Polyline, PolylineOptions>(
+    Polyline,
+    (mainLayer) => new Polyline(mainLayer.getLatLngs() as any),
+    ['setLatLngs'],
+    {
+        generateStyles: generatePolylineStyles
+    }
+);
 
-export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(Rectangle, ['setBounds']);
+export const HighlightableRectangle = createHighlightableLayerClass<typeof Rectangle, Rectangle, PolylineOptions>(
+    Rectangle,
+    (mainLayer) => new Rectangle(mainLayer.getBounds()),
+    ['setBounds']
+);

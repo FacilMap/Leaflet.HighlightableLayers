@@ -117,13 +117,19 @@ To render a dashed line, simply specify one or two numbers larger than `0` for `
 ### Custom vector layers
 
 If you are using a custom layer that extends `L.Path` and would like to make it highlightable, use the `createHighlightableLayerClass`
-method to create a subclass of your custom layer class with all the necessary methods injected. Specify any methods that modify the
-geometry of the layer in the second parameter. In case of `L.Circle` for example, that would be `setRadius` and `setLatLng`.
+method to create a subclass of your custom layer class with all the necessary methods injected. The method accepts the following parameters:
+1. The class you want to make highlightable. The resulting highlighting class will extend this class.
+2. A function that returns a layer clone with the same geometry as the main layer. The main layer is passed as an argument.
+3. A list of methods that modify the geometry. In case of `L.Circle` for example, that would be `setRadius` and `setLatLng`. When these methods are called, they will be called on the main class and on each layer clone.
 
 ```javascript
 import { createHighlightableLayerClass } from "leaflet-highlightable-layers";
 
-const HighlightableCustomVectorLayer = createHighlightableLayerClass(L.CustomVectorClass, ['setRadius', 'setLatLng']);
+const HighlightableCustomVectorLayer = createHighlightableLayerClass(
+	L.CustomVectorClass,
+	(mainLayer) => new L.CustomVectorClass(mainLayer.getLatLng(), mainLayer.getRadius()),
+	['setRadius', 'setLatLng']
+);
 
 new HighlightableCustomVectorLayer().addTo(map);
 ```
