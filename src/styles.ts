@@ -1,12 +1,6 @@
 import { PathOptions, Renderer } from "leaflet";
 import { HighlightableLayerOptions } from "./layers";
-import { getBrightness, isBright } from "./utils";
-
-export const BRIGHT_OUTLINE_COLOR = "#000000";
-export const DARK_OUTLINE_COLOR = "#ffffff";
-export const BRIGHT_OUTLINE_WEIGHT_REDUCTION_FACTOR = 1.6;
-export const OUTLINE_WEIGHT_FACTOR = 2;
-export const POLYLINE_MIN_INTERACTION_WIDTH = 20;
+import { BRIGHT_OUTLINE_COLOR, BRIGHT_OUTLINE_WEIGHT_REDUCTION_FACTOR, DARK_OUTLINE_COLOR, OUTLINE_WEIGHT_FACTOR, POLYLINE_MIN_INTERACTION_WIDTH, getBrightness, isBright } from "./utils";
 
 export function generatePolygonStyles(options: HighlightableLayerOptions<PathOptions>, renderer: Renderer): Record<string, PathOptions> {
     const bright = isBright(options.color!);

@@ -1,3 +1,9 @@
+export const BRIGHT_OUTLINE_COLOR = "#000000";
+export const DARK_OUTLINE_COLOR = "#ffffff";
+export const BRIGHT_OUTLINE_WEIGHT_REDUCTION_FACTOR = 1.6;
+export const OUTLINE_WEIGHT_FACTOR = 2;
+export const POLYLINE_MIN_INTERACTION_WIDTH = 20;
+
 export function getBrightness(colour: string): number {
 	const c = colour.replace(/^#/, "");
 	const r = parseInt(c.substr(0, 2), 16)/255;
