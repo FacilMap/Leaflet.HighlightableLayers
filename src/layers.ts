@@ -53,8 +53,10 @@ export function createHighlightableLayerClass<
             this._updateStyle(renderer);
 
             this._renderer = renderer;
+            renderer.once("add", () => {
+                renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
+            });
             map.addLayer(renderer);
-            renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
 
             return this;
         }
