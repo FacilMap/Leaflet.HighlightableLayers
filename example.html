@@ -25,7 +25,7 @@
 
 		<script type="module">
 			import * as L from 'leaflet';
-			import { HighlightableCircle, HighlightableRectangle, HighlightablePolygon, HighlightablePolyline } from 'leaflet-highlightable-layers';
+			import { HighlightableCircle, HighlightableCircleMarker, HighlightableRectangle, HighlightablePolygon, HighlightablePolyline } from 'leaflet-highlightable-layers';
 
 		    var map = L.map('map',{
 				center: [52.4830, 13.3414],
@@ -54,6 +54,7 @@
 				}).addTo(map),
 				new HighlightableCircle([52.54463, 11.68121], { radius: 100, color: "#ffff00" }).addTo(map).setRadius(20000),
 				new HighlightableCircle([52.84463, 11.98121], { radius: 100, color: "#ffff00" }).setRadius(20000).addTo(map),
+				new HighlightableCircleMarker([53, 13], { radius: 20, color: "#ffff00" }).addTo(map),
 				new HighlightableRectangle([[52.91056, 14.40308], [52.91057, 14.40309]], { color: "#ffaaaa" }).setBounds([[52.91056, 14.40308], [52.63806, 15.0705]]).addTo(map),
 				new HighlightableRectangle([[52.91056, 14.40308], [52.91057, 14.40309]], { color: "#ffaaaa" }).addTo(map).setBounds([[52.51056, 14.40308], [52.23806, 15.0705]]),
 

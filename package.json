@@ -24,13 +24,13 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.8",
+    "@types/leaflet": "^1.9.11",
     "leaflet": "^1.9.4",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.10",
-    "vite-plugin-css-injected-by-js": "^3.3.1",
-    "vite-plugin-dts": "^3.7.0"
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "vite-plugin-css-injected-by-js": "^3.5.0",
+    "vite-plugin-dts": "^3.8.3"
   },
   "peerDependencies": {
     "leaflet": "x"

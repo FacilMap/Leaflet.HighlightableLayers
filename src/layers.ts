@@ -181,7 +181,7 @@ export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, 
 
 export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(
 	CircleMarker,
-	(mainLayer) => new CircleMarker(mainLayer.getLatLng()),
+	(mainLayer) => new CircleMarker(mainLayer.getLatLng(), { radius: mainLayer.getRadius() }),
 	['setRadius', 'setLatLng']
 );
 
