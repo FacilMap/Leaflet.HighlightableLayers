@@ -18,6 +18,6 @@ export function isBright(color: string): boolean {
 }
 
 export function clone<T>(obj: T): T {
-    // See https://stackoverflow.com/a/44782052/242365
-    return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+	// See https://stackoverflow.com/a/44782052/242365
+	return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
 }
