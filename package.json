@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.11",
+    "@types/node": "^22.10.1",
     "leaflet": "^1.9.4",
     "rimraf": "^5.0.5",
     "typescript": "^5.4.5",
