@@ -254,14 +254,19 @@ export class SVGRendererWithZIndex extends SVG {
 	_updateStyle(layer: Path) {
 		super._updateStyle(layer);
 
-		layer._path.setAttribute("data-lhl-z-index", `${layer.options.lhlZIndex ?? ""}`);
-		const zIndexes = this._getZIndexes();
-		const prevSibling = [...zIndexes].reverse().find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
-		const nextSibling = zIndexes.find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
-		if (prevSibling && layer._path.compareDocumentPosition(prevSibling[0]) & 0x2) {
-			this._rootGroup!.insertBefore(layer._path, prevSibling[0].nextSibling);
-		} else if (nextSibling && layer._path.compareDocumentPosition(nextSibling[0]) & 0x4) {
-			this._rootGroup!.insertBefore(layer._path, nextSibling[0]);
+		if (layer._path) {
+			layer._path.setAttribute("data-lhl-z-index", `${layer.options.lhlZIndex ?? ""}`);
+
+			if (this._rootGroup) {
+				const zIndexes = this._getZIndexes();
+				const prevSibling = [...zIndexes].reverse().find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
+				const nextSibling = zIndexes.find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
+				if (prevSibling && layer._path.compareDocumentPosition(prevSibling[0]) & 0x2) {
+					this._rootGroup.insertBefore(layer._path, prevSibling[0].nextSibling);
+				} else if (nextSibling && layer._path.compareDocumentPosition(nextSibling[0]) & 0x4) {
+					this._rootGroup.insertBefore(layer._path, nextSibling[0]);
+				}
+			}
 		}
 	}
 }
