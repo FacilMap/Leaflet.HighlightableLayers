@@ -42,12 +42,13 @@ export function generatePolygonStyles(options: HighlightableLayerOptions<PathOpt
 			...options,
 			weight: lineWeight,
 			renderer,
-			fill: false
+			fill: false,
+			lhlZIndex: 1
 		}
 	};
 }
 
-export function generatePolylineStyles(options: HighlightableLayerOptions<PathOptions>, renderer: Renderer): Record<string, PathOptions> {
+export function generatePolylineStyles(options: HighlightableLayerOptions<PathOptions>): Record<string, PathOptions> {
 	const isBright = getBrightness(options.color!.replace(/^#/, "")) > 0.7
 	const outlineColor = options.outlineColor ?? (
 		isBright ? "#000000" : "#ffffff"
@@ -63,14 +64,13 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 		outline: {
 			...options,
 			color: outlineColor,
-			weight: outlineWeight,
-			renderer
+			weight: outlineWeight
 		},
 
 		line: {
 			...options,
 			weight: lineWeight,
-			renderer
+			lhlZIndex: 1
 		},
 
 		main: {

@@ -174,22 +174,17 @@ The main layer is the only interactive one that will receive mouse events, the c
 the order matters, layers that appear later in the list will be on top of layers earlier in the list (as long as they are rendered
 on the same pane).
 
-The second argument passed to the `generateStyles` function is an instance of `L.Renderer`. This instance is created specifically
-for the layer (rather than using the pane renderer). This way, the layer and its clones are contained under a separate DOM element
-that can be styled separately. Internally, Leaflet.HighlightableLayers applies the opacity to the renderer container rather than
-to the individual layer clones, to make sure that the outline doesn't shine through the main line.
-
 In this example, we want to render a polyline with 3 clones to create a 3-striped line. The main line should be transparent and
 act as the interaction layer, while the 3 clones have different widths and colors each. Since we are adding all 3 clones to the
 same pane, the order of the clones is important (the widest line first).
 
 ```javascript
 new HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
-	generateStyles: (options, renderer) => ({
+	generateStyles: (options) => ({
 		main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
-		line1: { ...options, color: '#0000ff', weight: 30, renderer },
-		line2: { ...options, color: '#00ff00', weight: 20, renderer },
-		line3: { ...options, color: '#ff0000', weight: 10, renderer }
+		line1: { ...options, color: '#0000ff', weight: 30 },
+		line2: { ...options, color: '#00ff00', weight: 20 },
+		line3: { ...options, color: '#ff0000', weight: 10 }
 	})
 }).addTo(map);
 ```
@@ -226,3 +221,13 @@ const weight = testLine.layers.line.options.weight; // 6
 const outlineColor = testLine.layers.outline.options.color; // #000000
 const outlineWeight = testLine.layers.outline.options.weight; // 12
 ```
+
+## Renderers
+
+Leaflet.HighlightableLayers uses renderers in a bit of a different way than what is the default with Leaflet. By default, Leaflet creates one `L.Renderer.SVG` renderer per map pane. Each renderer creates one `<svg>` element on the pane, itself containing one `<g>` element. All `Path` layers are rendered as `<path>` elements inside this one `<g>`. The opacity of each layer is applied to the `<path>` element.
+
+With the way Leaflet.HighlightableLayers works, this would cause the path outline to shine through the path, as the outline is a thicker black or white path behind the actual path. This would distort the colour of the line. To solve this, Leaflet.HighlightableLayer creates one renderer per pane and opacity. The opacity is then applied to the renderer rather than the individual layers. The layers are covering each other because within the scope of the renderer they are opaque. If this mechanism does not fit your use case, you can return a custom `renderer` option for the layer clones in the `generateStyles` callback.
+
+Leaflet.HighlightableLayers uses a custom subclass of the SVG renderer, called `SVGRendererWithZIndex`. It extends the default SVG renderer with the possibility to apply a z-index on each layer using the `lhlZIndex` option. This is used to control which layer covers which, to make sure that the paths are always above their outline and the outlines of other paths. Again, you can control this behaviour by returning custom `lhlZIndex` options in `generateStyles`.
+
+Leaflet.HighlightableLayers does not work with the Canvas renderer also provided by Leaflet.

@@ -7,6 +7,7 @@ declare module "leaflet" {
 
 	interface Layer {
 		options: LayerOptions;
+		addInteractiveTarget(targetEl: HTMLElement | SVGElement): this;
 	}
 
 	interface Path {
@@ -27,5 +28,10 @@ declare module "leaflet" {
 
 	interface Polyline {
 		_rawPxBounds?: Bounds;
+	}
+
+	interface SVG {
+		_rootGroup?: HTMLElement;
+		_initContainer(): void;
 	}
 }

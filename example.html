@@ -27,7 +27,7 @@
 			import * as L from 'leaflet';
 			import { HighlightableCircle, HighlightableCircleMarker, HighlightableRectangle, HighlightablePolygon, HighlightablePolyline } from 'leaflet-highlightable-layers';
 
-		    var map = L.map('map',{
+		    window.map = L.map('map',{
 				center: [52.4830, 13.3414],
 				zoom: 9
 			});
@@ -36,20 +36,21 @@
 				noWrap: true
 			}).addTo(map);
 
-			const layers = [
+			window.layers = [
 				new HighlightablePolyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
+				new HighlightablePolyline([[52.01701, 14.18884], [51.80692,15.01831]], { weight: 10 }).addTo(map),
 
 				// Test empty polyline, setting coordinates later
-				new HighlightablePolyline([], { color: '#ffffff', weight: 3 }).addTo(map).setLatLngs([[51.96119, 11.79382], [53.16653, 14.04877]]),
+				new HighlightablePolyline([], { color: '#ffffff', weight: 10 }).addTo(map).setLatLngs([[51.96119, 11.79382], [53.16653, 14.04877]]),
 				new HighlightablePolyline([], { color: '#ffffff', weight: 3 }).setLatLngs([[51.86119, 11.79382], [53.06653, 14.04877]]).addTo(map),
 
 				new HighlightablePolygon([[52.32359, 13.92242], [52.11157, 13.28522], [51.87649, 13.98834]]).addTo(map),
 				new HighlightablePolyline([[52.06262, 12.55737], [51.98995, 14.1394]], {
-					generateStyles: (options, renderer) => ({
+					generateStyles: (options) => ({
 						main: { opacity: 0, weight: 30, pane: 'lhl-almost-over' },
-						line1: { ...options, color: '#0000ff', weight: 30, renderer },
-						line2: { ...options, color: '#00ff00', weight: 20, renderer },
-						line3: { ...options, color: '#ff0000', weight: 10, renderer }
+						line1: { ...options, color: '#0000ff', weight: 30 },
+						line2: { ...options, color: '#00ff00', weight: 20 },
+						line3: { ...options, color: '#ff0000', weight: 10 }
 					})
 				}).addTo(map),
 				new HighlightableCircle([52.54463, 11.68121], { radius: 100, color: "#ffff00" }).addTo(map).setRadius(20000),

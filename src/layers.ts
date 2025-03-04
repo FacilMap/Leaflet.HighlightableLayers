@@ -1,13 +1,24 @@
-import { Circle, CircleMarker, CircleMarkerOptions, Map, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle, Renderer } from "leaflet";
-import { setLayerPane, setLayerRenderer } from "./panes";
+import { Circle, CircleMarker, CircleMarkerOptions, Map as LeafletMap, Path, PathOptions, Polygon, Polyline, PolylineOptions, Rectangle, Renderer, SVG } from "leaflet";
+import { setLayerRenderer } from "./panes";
 import { generatePolygonStyles, generatePolylineStyles } from "./styles";
 import { clone } from "./utils";
+
+declare module "leaflet" {
+	interface Map {
+		_lhlRenderers?: Record<string, Renderer>;
+	}
+
+	interface PathOptions {
+		/** The z-index of the layer (only works with SVGRendererWithZIndex) */
+		lhlZIndex?: number;
+	}
+}
 
 export type HighlightableLayerOptions<O extends PathOptions> = O & {
 	raised?: boolean;
 	outlineColor?: string;
 	outlineWeight?: number;
-	generateStyles?: (options: HighlightableLayerOptions<O>, renderer: Renderer) => Record<string, O>;
+	generateStyles?: (options: HighlightableLayerOptions<O>) => Record<string, O>;
 };
 
 export type HighlightableLayer<
@@ -16,8 +27,9 @@ export type HighlightableLayer<
 > = T & {
 	realOptions: HighlightableLayerOptions<O>;
 	layers: Record<string, T>;
-	generateStyles(options: HighlightableLayerOptions<O>, renderer: Renderer): Record<string, O>;
+	generateStyles(options: HighlightableLayerOptions<O>): Record<string, O>;
 	setStyle(style: Partial<HighlightableLayerOptions<O>>): HighlightableLayer<T, O>;
+	_getLhlRenderer(map: LeafletMap, pane: string, opacity: number | undefined): Renderer
 };
 
 export function createHighlightableLayerClass<
@@ -46,22 +58,29 @@ export function createHighlightableLayerClass<
 			});
 		}
 
-		beforeAdd(map: Map) {
-			// Use a custom renderer for each layer so that it creates an additional element that we can set an opacity on
-			const renderer = map._createRenderer();
+		_getLhlRenderer(map: LeafletMap, pane: string, opacity: number = 1): Renderer {
+			// Use a custom renderer for each opacity+pane combination so that it creates an additional element that we can set an opacity on
 
-			this._updateStyle(renderer);
+			if (!map._lhlRenderers) {
+				map._lhlRenderers = {};
+			}
+			const key = `${opacity}\n${pane}`;
+			if (!map._lhlRenderers[key]) {
+				const renderer = map._lhlRenderers[key] = new SVGRendererWithZIndex({ pane });
+				renderer.once("add", () => {
+					renderer._container.style.opacity = `${opacity}`;
+				});
+				map.addLayer(renderer);
+			}
+			return map._lhlRenderers[key];
+		}
 
-			this._renderer = renderer;
-			renderer.once("add", () => {
-				renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
-			});
-			map.addLayer(renderer);
-
+		beforeAdd(map: LeafletMap) {
+			this._updateStyle(map);
 			return this;
 		}
 
-		onAdd(map: Map) {
+		onAdd(map: LeafletMap) {
 			super.onAdd(map);
 
 			for (const layerName of Object.keys(this.layers)) {
@@ -71,7 +90,7 @@ export function createHighlightableLayerClass<
 			return this as any;
 		}
 
-		onRemove(map: Map) {
+		onRemove(map: LeafletMap) {
 			for (const layerName of Object.keys(this.layers)) {
 				map.removeLayer(this.layers[layerName]);
 			}
@@ -84,12 +103,8 @@ export function createHighlightableLayerClass<
 			return this as any;
 		}
 
-		_updateStyle(renderer: Renderer) {
-			renderer.options.pane = this.realOptions.raised ? "lhl-raised" : this.realOptions.pane;
-			if (renderer._container)
-				renderer.getPane()!.appendChild(renderer._container); // Move renderer to right pane
-
-			const styles = this.realOptions.generateStyles?.(Object.assign(clone(this.realOptions), { opacity: 1 }), renderer) ?? { main: clone(this.realOptions) }
+		_updateStyle(map: LeafletMap) {
+			const styles = this.realOptions.generateStyles?.(Object.assign(clone(this.realOptions), { opacity: 1 })) ?? { main: clone(this.realOptions) }
 
 			for (const layerName of Object.keys(this.layers)) {
 				if (!Object.prototype.hasOwnProperty.call(styles, layerName)) {
@@ -117,24 +132,19 @@ export function createHighlightableLayerClass<
 				}
 			}
 
-			if (styles.main.pane)
-				setLayerPane(this, styles.main.pane);
-			if (styles.main.renderer)
-				setLayerRenderer(this, styles.main.renderer);
+			const fallbackPane = this.realOptions.raised ? "lhl-raised" : (this.realOptions.pane ?? "overlayPane");
 
+			const renderer = styles.main.renderer ?? this._getLhlRenderer(map, styles.main.pane ?? fallbackPane, this.realOptions.opacity);
+			setLayerRenderer(this, renderer);
 			super.setStyle(styles.main);
+			this._renderer = renderer;
 
 			for (const layerName of Object.keys(this.layers)) {
-				if (styles[layerName].pane)
-					setLayerPane(this.layers[layerName], styles[layerName].pane!);
-				if (styles[layerName].renderer)
-					setLayerRenderer(this.layers[layerName], styles[layerName].renderer!);
-
+				const renderer = styles[layerName].renderer ?? this._getLhlRenderer(map, styles[layerName].pane ?? fallbackPane, this.realOptions.opacity);
+				setLayerRenderer(this.layers[layerName], renderer);
 				this.layers[layerName].setStyle(styles[layerName]);
+				this.layers[layerName]._renderer = renderer;
 			}
-
-			if (renderer._container)
-				renderer._container.style.opacity = `${this.realOptions.opacity ?? 1}`;
 
 			if (this._map) {
 				for (const layer of Object.values(this.layers)) {
@@ -147,8 +157,8 @@ export function createHighlightableLayerClass<
 
 		setStyle(style: Partial<HighlightableLayerOptions<O>>) {
 			Object.assign(this.realOptions, style);
-			if (this._renderer) {
-				this._updateStyle(this._renderer);
+			if (this._map) {
+				this._updateStyle(this._map);
 			}
 			return this as any;
 		}
@@ -205,3 +215,53 @@ export const HighlightableRectangle = createHighlightableLayerClass<typeof Recta
 	(mainLayer) => new Rectangle(mainLayer.getBounds()),
 	['setBounds']
 );
+
+/**
+ * An extension of the Leaflet SVG renderer that allows specifying a z-index for each layer through the lhlZIndex option.
+ */
+export class SVGRendererWithZIndex extends SVG {
+	_getZIndexes(): Array<[SVGElement, number | undefined]> {
+		const result: Array<[SVGElement, number | undefined]> = [];
+		for (const el of this._rootGroup!.childNodes) {
+			if (el.nodeType !== Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			const zIndex = (el as SVGElement).getAttribute("data-lhl-z-index");
+			result.push([el as SVGElement, zIndex ? Number(zIndex) : undefined]);
+		}
+		return result;
+	}
+
+	_addPath(layer: Path) {
+		// A modified version of SVG._addPath() that does not simply call appendChild(), but inserts the child at a certain position
+		if (!this._rootGroup) {
+			this._initContainer();
+		}
+
+		layer._path.setAttribute("data-lhl-z-index", `${layer.options.lhlZIndex ?? ""}`);
+
+		const zIndexes = this._getZIndexes();
+		const nextSibling = zIndexes.find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
+		if (nextSibling) {
+			this._rootGroup!.insertBefore(layer._path, nextSibling[0]);
+		} else {
+			this._rootGroup!.appendChild(layer._path);
+		}
+		layer.addInteractiveTarget(layer._path);
+	}
+
+	_updateStyle(layer: Path) {
+		super._updateStyle(layer);
+
+		layer._path.setAttribute("data-lhl-z-index", `${layer.options.lhlZIndex ?? ""}`);
+		const zIndexes = this._getZIndexes();
+		const prevSibling = [...zIndexes].reverse().find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
+		const nextSibling = zIndexes.find(([el, zIndex]) => (zIndex ?? 0) > (layer.options.lhlZIndex ?? 0));
+		if (prevSibling && layer._path.compareDocumentPosition(prevSibling[0]) & 0x2) {
+			this._rootGroup!.insertBefore(layer._path, prevSibling[0].nextSibling);
+		} else if (nextSibling && layer._path.compareDocumentPosition(nextSibling[0]) & 0x4) {
+			this._rootGroup!.insertBefore(layer._path, nextSibling[0]);
+		}
+	}
+}
