@@ -97,7 +97,6 @@ export function createHighlightableLayerClass<
 
 			super.onRemove(map);
 
-			map.removeLayer(this._renderer!);
 			delete this._renderer;
 
 			return this as any;
