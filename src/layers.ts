@@ -76,8 +76,31 @@ export function createHighlightableLayerClass<
 		}
 
 		beforeAdd(map: LeafletMap) {
-			this._updateStyle(map);
+			// We do not call super.beforeAdd() here, since it would initialize the default renderer, which we don't use.
+
+			// When calling map.addLayer(layer), Leaflet does the following:
+			// 1. layer.beforeAdd(map) is called immediately. It sets layer._mapToAdd.
+			// 2. layer._layerAdd({ target: map }) is called immediately if the map is loaded, otherwise deferred until
+			//    map.setView() is called. It sets layer._map.
+			// 3. layer.onAdd(map) is called by the default implementation of layer._layerAdd().
+
+			// Leaflet requires renderer.onAdd() to be called _before_ layer.onAdd(), otherwise the latter will cause
+			// an exception.
+			// In Leaflet's default implementation of Path, the renderer is initialized and added in layer.beforeAdd().
+			// This always defers renderer.onAdd() _before_ deferring layer.onAdd().
+			// However, in our case, layer.setStyle() can switch to another renderer after layer.beforeAdd() has already
+			// been called.
+
+			// To make sure that renderer.onAdd() is always called before layer.onAdd(), we create the renderer in
+			// layer._layerAdd(), since that is always called right before layer.onAdd() (so the renderer cannot be
+			// switched in between).
+
 			return this;
+		}
+
+		_layerAdd(e: { target: LeafletMap }) {
+			this._updateStyle(e.target);
+			super._layerAdd(e);
 		}
 
 		onAdd(map: LeafletMap) {

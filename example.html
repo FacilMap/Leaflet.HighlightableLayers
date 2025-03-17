@@ -27,16 +27,18 @@
 			import * as L from 'leaflet';
 			import { HighlightableCircle, HighlightableCircleMarker, HighlightableRectangle, HighlightablePolygon, HighlightablePolyline } from 'leaflet-highlightable-layers';
 
-		    window.map = L.map('map',{
+			// Variables are made globally available as window.lhl below
+
+			const map = L.map('map', {
 				center: [52.4830, 13.3414],
 				zoom: 9
 			});
-		    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 				attribution: '© <a href="http://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
 				noWrap: true
 			}).addTo(map);
 
-			window.layers = [
+			const layers = [
 				new HighlightablePolyline([[53.09897, 12.02728], [52.01701, 14.18884]], { weight: 10 }).addTo(map),
 				new HighlightablePolyline([[52.01701, 14.18884], [51.80692,15.01831]], { weight: 10 }).addTo(map),
 

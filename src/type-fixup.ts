@@ -8,6 +8,8 @@ declare module "leaflet" {
 	interface Layer {
 		options: LayerOptions;
 		addInteractiveTarget(targetEl: HTMLElement | SVGElement): this;
+		_mapToAdd?: Map;
+		_layerAdd(e: { target: Map }): void;
 	}
 
 	interface Path {
