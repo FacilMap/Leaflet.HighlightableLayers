@@ -3,8 +3,8 @@ Leaflet.HighlightableLayers
 
 Leaflet.HighlightableLayers provides a modified version of the vector layers inheriting from
 [`L.Path`](https://leafletjs.com/reference.html#path) (for example Polyline, Polygon, etc.) with these additional features:
-* Lines can get an outline. For example, a blue line can get a black border to highlight it more. Polygons can get an outline
-  for their border.
+* Lines can get an outline (also called a casing). For example, a blue line can get a black border to highlight it more. Polygons
+  can get an outline for their border.
 * Mouse/touch interactions with thin lines get some tolerance. For example, hovering or clicking a line will also work when the
   mouse pointer is a couple of pixels next to the line. This is similar to
   [Leaflet.AlmostOver](https://github.com/makinacorpus/Leaflet.AlmostOver), but the interactions trigger the usual Leaflet events
