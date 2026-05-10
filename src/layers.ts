@@ -206,13 +206,23 @@ export function createHighlightableLayerClass<
 }
 
 export const HighlightableCircle = createHighlightableLayerClass<typeof Circle, Circle, CircleMarkerOptions>(
-	Circle,
-	(mainLayer) => new Circle(mainLayer.getLatLng(), mainLayer.getRadius()),
+	class PatchedCircle extends Circle {
+		override setRadius(radius: number) {
+			(this as any).realOptions.radius = radius;
+			return super.setRadius(radius);
+		}
+	},
+	(mainLayer) => new Circle(mainLayer.getLatLng(), { radius: mainLayer.getRadius() }),
 	['setRadius', 'setLatLng']
 );
 
 export const HighlightableCircleMarker = createHighlightableLayerClass<typeof CircleMarker, CircleMarker, CircleMarkerOptions>(
-	CircleMarker,
+	class PatchedCircleMarker extends CircleMarker {
+		override setRadius(radius: number) {
+			(this as any).realOptions.radius = radius;
+			return super.setRadius(radius);
+		}
+	},
 	(mainLayer) => new CircleMarker(mainLayer.getLatLng(), { radius: mainLayer.getRadius() }),
 	['setRadius', 'setLatLng']
 );

@@ -23,7 +23,10 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			'leaflet-highlightable-layers': './src/index.ts'
+			'leaflet-highlightable-layers': './src/index.ts',
+			...process.env.LEAFLET === "2" ? {
+				'leaflet': 'leaflet2'
+			} : {}
 		}
 	}
 });

@@ -1371,6 +1371,7 @@ __metadata:
     "@types/leaflet": "npm:^1.9.16"
     "@types/node": "npm:^22.13.9"
     leaflet: "npm:^1.9.4"
+    leaflet2: "npm:leaflet@2.0.0-alpha.1"
     rimraf: "npm:^6.0.1"
     typescript: "npm:^5.8.2"
     vite: "npm:^6.2.0"
@@ -1380,6 +1381,13 @@ __metadata:
     leaflet: x
   languageName: unknown
   linkType: soft
+
+"leaflet2@npm:leaflet@2.0.0-alpha.1":
+  version: 2.0.0-alpha.1
+  resolution: "leaflet@npm:2.0.0-alpha.1"
+  checksum: 10/ebf6093e29b47c321aa8008feab4834d40cdd8f9061dacbb083c9e957013ea73f9fd41dda9ed20d4045a0d696acdb56c5526a30e3e9861b6982e996af3b866b6
+  languageName: node
+  linkType: hard
 
 "leaflet@npm:^1.9.4":
   version: 1.9.4

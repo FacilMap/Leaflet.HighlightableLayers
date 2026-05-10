@@ -29,11 +29,11 @@
 
 			// Variables are made globally available as window.lhl below
 
-			const map = L.map('map', {
+			const map = new L.Map('map', {
 				center: [52.4830, 13.3414],
 				zoom: 9
 			});
-			L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 				attribution: '© <a href="http://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
 				noWrap: true
 			}).addTo(map);
