@@ -19,6 +19,7 @@ export function generatePolygonStyles(options: HighlightableLayerOptions<PathOpt
 			...options,
 			weight: outlineWeight,
 			opacity: 0,
+			fillOpacity: 0,
 			dashArray: undefined,
 			dashOffset: undefined
 		},
