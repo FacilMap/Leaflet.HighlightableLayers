@@ -60,6 +60,7 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 
 	return {
 		outline: {
+			...options.raised ? { pane: "lhl-raised" } : {},
 			...options,
 			color: outlineColor,
 			weight: outlineWeight,
@@ -67,6 +68,7 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 		},
 
 		line: {
+			...options.raised ? { pane: "lhl-raised" } : {},
 			...options,
 			weight: lineWeight,
 			lhlZIndex: 20
@@ -75,7 +77,7 @@ export function generatePolylineStyles(options: HighlightableLayerOptions<PathOp
 		main: {
 			opacity: 0,
 			weight: Math.max(POLYLINE_MIN_INTERACTION_WIDTH, outlineWeight, lineWeight),
-			pane: "lhl-almost-over",
+			pane: options.raised ? "lhl-raised" : "lhl-almost-over",
 			dashArray: undefined,
 			dashOffset: undefined
 		}
