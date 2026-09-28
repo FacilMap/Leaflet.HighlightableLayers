@@ -25,18 +25,19 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.16",
-    "@types/node": "^22.13.9",
+    "@microsoft/api-extractor": "^7.59.2",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.3",
     "leaflet": "^1.9.4",
     "leaflet2": "npm:leaflet@2.0.0-alpha.1",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.0",
-    "vite-plugin-css-injected-by-js": "^3.5.2",
-    "vite-plugin-dts": "^4.5.3"
+    "rimraf": "^6.1.3",
+    "typescript": "5.9.3",
+    "unplugin-dts": "^1.1.1",
+    "vite": "^8.3.1",
+    "vite-plugin-css-injected-by-js": "^5.0.2"
   },
   "peerDependencies": {
     "leaflet": "x"
   },
-  "packageManager": "yarn@4.7.0"
+  "packageManager": "yarn@4.18.0"
 }

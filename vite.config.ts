@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
-import dtsPlugin from 'vite-plugin-dts';
+import dtsPlugin from 'unplugin-dts/vite';
 import { isAbsolute } from 'node:path';
 
 export default defineConfig({
 	plugins: [
 		cssInjectedByJsPlugin(),
-		dtsPlugin({ rollupTypes: true })
+		dtsPlugin({ bundleTypes: true })
 	],
 	build: {
 		sourcemap: true,
